@@ -38,9 +38,9 @@ class Character implements Fighter {
   //        amount com um valor aleatório de no mínimo 1 e no máximo 10 pontos. ✨✨
   constructor(name: string) {
     this._dexterity = getRandomInt(1, 10);
-    this._race = new Elf(name, Number(this._dexterity));
+    this._race = new Elf(name, this._dexterity);
     this._archetype = new Mage(name);
-    this._maxLifePoints = this._race.maxLifePoints;
+    this._maxLifePoints = this._race.maxLifePoints / 2;
     this._lifePoints = this._race.maxLifePoints;
     this._strength = getRandomInt(1, 10);
     this._defense = getRandomInt(1, 10);
@@ -50,13 +50,33 @@ class Character implements Fighter {
     };
   }
   // A classe Character também deve implementar os métodos estendidos da interface Fighter;
+
   //    receiveDamage 😵 este método recebe por parâmetro um valor(attackPoints) e as regras são:
   //      Para calcular o dano recebido(damage), o valor da defesa(defense) do personagem deve ser subtraído do valor do ataque recebido(attackPoints);
   //      Se o dano calculado(damage) for maior que 0, você perde esse valor em pontos de vida(lifePoints).Se o dano calculado(damage) for igual ou menor a zero,
   //      você deve perder apenas 1 ponto de vida(lifePoints);
   //      Ao receber o ataque e perder pontos de vida(lifePoints), e se sua vida chegar a 0 ou menos, você deve fixá - la com o valor - 1;
   //      Ao final sempre retorne o valor atualizado de seus pontos de vida.
-  
+  get race(): Race {
+    return this._race;
+  }
+
+  get archetype(): Archetype {
+    return this._archetype;
+  }
+
+  get maxLifePoints(): number {
+    return this._maxLifePoints;
+  }
+
+  get dexterity(): number {
+    return this._dexterity;
+  }
+
+  get energy(): Energy {
+    return { ...this._energy };
+  }
+
   get lifePoints(): number {
     return this._lifePoints;
   }
@@ -77,8 +97,8 @@ class Character implements Fighter {
 
   levelUp(): void {
     const increment = getRandomInt(1, 10);
-    this._maxLifePoints += increment;
 
+    this._maxLifePoints += increment;
     if (this._maxLifePoints > this._race.maxLifePoints) {
       this._maxLifePoints = this._race.maxLifePoints;
     }
@@ -86,7 +106,17 @@ class Character implements Fighter {
     this._dexterity += increment;
     this._defense += increment;
     this._energy.amount = 10;
-    this._lifePoints = this._maxLifePoints;
+
+    // Calculate lifePointsIncrement based on the existing increment
+    const lifePointsIncrement = Math
+      .min(increment, this._maxLifePoints - this._lifePoints);
+
+    // Check if _lifePoints is less than _maxLifePoints, and it's not already equal to _maxLifePoints
+    if (this._lifePoints < this._maxLifePoints) {
+      // Increment _lifePoints by lifePointsIncrement
+      this._lifePoints += lifePointsIncrement;
+    }
+    this._energy.amount = 10;
   }
 
   receiveDamage(attackPoints: number): number {
@@ -99,10 +129,10 @@ class Character implements Fighter {
     }
 
     if (this._lifePoints <= 0) {
-      this._lifePoints = 0;
+      this._lifePoints = -1;
     }
 
-    return damage;
+    return this._lifePoints;
   }
 
   // special?(enemy: Fighter): void {
