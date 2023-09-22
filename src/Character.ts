@@ -1,31 +1,19 @@
 import Archetype, { Mage } from './Archetypes';
 import Energy from './Energy';
-import Fighter from './Fighter';
+import Fighter, { SimpleFighter } from './Fighter';
 import Race, { Elf } from './Races';
 import getRandomInt from './utils';
 
-// A classe deve implementar a interface Fighter;
 class Character implements Fighter {
-  // A classe Character deve ter os atributos privados: race, archetype, maxLifePoints, lifePoints, strength, defense, dexterity e energy, todos inicializados em seu construtor;
-  // Os atributos da classe Character podem ser lidos mas não podem ser alterados
-  //    O atributo race deve ser do tipo Race;
   private _race: Race;
-  //     O atributo archetype deve ser do tipo Archetype;
   private _archetype: Archetype;
-  //    O atributo maxLifePoints deve ser do tipo number;
   private _maxLifePoints: number;
-  //    O atributo lifePoints deve ser do tipo number;
   private _lifePoints: number;
-  //    O atributo strength deve ser do tipo number;
   private _strength: number;
-  //    O atributo defense deve ser do tipo number;
   private _defense: number;
-  //    O atributo dexterity deve ser do tipo number;
   private _dexterity: number;
-  //    O atributo energy deve ser do tipo Energy;
   private _energy: Energy;
 
-  //  O atributo name deve ser recebido como parâmetro no construtor e deve ser usado para dar nome à sua personagem.
   //  Devem ser inicializados no construtor:
   //     dexterity com um valor aleatório de no mínimo 1 e no máximo 10 pontos. ✨✨;
   //     race por padrão com uma instância de Elf(A destreza de Elf deve ser a mesma definida em dexterity);
@@ -49,14 +37,7 @@ class Character implements Fighter {
       amount: getRandomInt(1, 10),
     };
   }
-  // A classe Character também deve implementar os métodos estendidos da interface Fighter;
 
-  //    receiveDamage 😵 este método recebe por parâmetro um valor(attackPoints) e as regras são:
-  //      Para calcular o dano recebido(damage), o valor da defesa(defense) do personagem deve ser subtraído do valor do ataque recebido(attackPoints);
-  //      Se o dano calculado(damage) for maior que 0, você perde esse valor em pontos de vida(lifePoints).Se o dano calculado(damage) for igual ou menor a zero,
-  //      você deve perder apenas 1 ponto de vida(lifePoints);
-  //      Ao receber o ataque e perder pontos de vida(lifePoints), e se sua vida chegar a 0 ou menos, você deve fixá - la com o valor - 1;
-  //      Ao final sempre retorne o valor atualizado de seus pontos de vida.
   get race(): Race {
     return this._race;
   }
@@ -89,8 +70,7 @@ class Character implements Fighter {
     return this._defense;
   }
 
-  // Implementação do método attack
-  attack(enemy: Fighter): void {
+  attack(enemy: SimpleFighter): void {
     const damage = this._strength;
     enemy.receiveDamage(damage);
   }
@@ -107,20 +87,17 @@ class Character implements Fighter {
     this._defense += increment;
     this._energy.amount = 10;
 
-    // Calculate lifePointsIncrement based on the existing increment
     const lifePointsIncrement = Math
       .min(increment, this._maxLifePoints - this._lifePoints);
 
-    // Check if _lifePoints is less than _maxLifePoints, and it's not already equal to _maxLifePoints
     if (this._lifePoints < this._maxLifePoints) {
-      // Increment _lifePoints by lifePointsIncrement
       this._lifePoints += lifePointsIncrement;
     }
     this._energy.amount = 10;
   }
 
-  receiveDamage(attackPoints: number): number {
-    const damage = attackPoints - this._defense;
+  receiveDamage(attackPoints: SimpleFighter): number {
+    const damage = attackPoints.strength - this._defense;
 
     if (damage > 0) {
       this._lifePoints -= damage;
